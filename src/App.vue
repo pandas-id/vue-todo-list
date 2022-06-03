@@ -1,64 +1,48 @@
 <script setup>
 import { ref, computed } from 'vue'
 
-
 let id = 0
 
-// const counter = ref(0)
-
 const newTodo = ref('')
-const hideComplted = ref(false)
+const hideCompleted = ref(false)
 
 const isUpdate = ref(false)
-const todoSelected = ref(null)
+const selectedTodo = ref(null)
 
 const todos = ref([
-  { id: id++, text: 'Belajar Javascript', done: true },
-  { id: id++, text: 'Belajar Vue', done: false },
-  { id: id++, text: 'Belajar Python', done: true },
-  { id: id++, text: 'Belajar React', done: false }
+  { id: id++, text: 'Belajar Javascript', done: true},
+  { id: id++, text: 'Belajar Vue', done: false},
+  { id: id++, text: 'Belajar Python', done: true},
 ])
 
+const filteredTodos = computed(() => {
+  return hideCompleted.value
+    ? todos.value.filter((t) => !t.done)
+    : todos.value
+})
+
 function addTodo() {
-  todos.value.push({ id: id++, text: newTodo.value, done: false })
+  todos.value.push({id: id++, text: newTodo.value, done: false})
   newTodo.value = ''
-}
-
-function editTodo(todo) {
-  isUpdate.value = true
-  newTodo.value = todo.text
-  todoSelected.value = todo
-}
-
-function updateTodo() {
-  todos.value.forEach((todo) => {
-    if(todo.id == todoSelected.value.id ) {
-      todo.text = newTodo.value
-    }
-  })
-  // todos.value.map((t) => {
-  //   if(t.id == todoSelected.value.id) {
-  //     t.text = newTodo.value
-  //   }
-  // })
-  newTodo.value = ''
-  todoSelected.value = null
-  isUpdate.value = false
 }
 
 function deleteTodo(todo) {
   todos.value = todos.value.filter((t) => t !== todo)
 }
 
-const filteredTodos = computed(() => {
-  return hideComplted.value
-    ? todos.value.filter((t) => !t.done)
-    : todos.value
-})
+function editTodo(todo) {
+  isUpdate.value = true
+  newTodo.value = todo.text
+  selectedTodo.value = todo
+}
 
-// function test() {
-//   alert('hai')
-// }
+function updateTodo() {
+  todos.value.forEach((todo) => {
+    if(todo === selectedTodo.value) todo.text = newTodo.value
+  })
+  newTodo.value = ''
+  selectedTodo.value = null
+}
 
 </script>
 
@@ -73,7 +57,7 @@ const filteredTodos = computed(() => {
     </div>
     <div class="field">
       <div class="control">
-        <button class="button is-link is-light is-fullwidth" type="submit">Update Todo</button>
+        <button class="button is-primary is-fullwidth" type="submit">Update</button>
       </div>
     </div>
   </form>
@@ -86,29 +70,29 @@ const filteredTodos = computed(() => {
     </div>
     <div class="field">
       <div class="control">
-        <button class="button is-primary is-fullwidth" type="submit">Tambahkan</button>
+        <button class="button is-primary is-fullwidth" type="submit">Add</button>
       </div>
     </div>
   </form>
-  <br>
-  <h4 class="is-size-6 has-text-weight-bold">Todo Lists</h4>
-  <hr>
 
+  <h3 class="mt-6 is-size-6 has-text-weight-bold">Todo Lists</h3>
+  <hr class="mt-2">
   <div class="block">
-    <div class="box is-size7 has-text-weight-bold" v-for="todo in filteredTodos" :key="todo.id">
+    <div v-for="todo in filteredTodos" :key="todo.id" class="box">
       <input class="mr-3" type="checkbox" v-model="todo.done">
-      <span class="" :class="{done: todo.done}">{{ todo.text }}</span>
+      <span :class="{done: todo.done}">{{ todo.text }}</span>
       <div class="buttons are-small">
-        <button class="button is-danger is-light" type="button" @click="deleteTodo(todo)">Hapus</button>
-        <button class="button is-success is-light" type="button" @click="editTodo(todo)">Edit</button>
+        <button @click="deleteTodo(todo)" class="button is-danger is-light" type="button">Delete</button>
+        <button @click="editTodo(todo)" class="button is-primary is-light" type="button">Update</button>
       </div>
     </div>
   </div>
-  <button class="button is-warning is-light is-fullwidth" type="button" @click="hideComplted = !hideComplted">
-    {{ hideComplted ? 'Tampilkan Semua' : 'Sembuyikan' }}
-  </button>
-</template>
 
+  <div class="block">
+    <button @click="hideCompleted = !hideCompleted" class="button is-warning is-fullwidth is-light" type="button">{{ hideCompleted ? 'Show All' : 'Hide Completed' }}</button>
+  </div>
+
+</template>
 
 <style>
 .done {
